@@ -1,17 +1,28 @@
 -- | Demonstration that dlists are not faster than cons and then reverse.
 
--- benchmarking list/100000
--- time                 5.444 ms   (5.393 ms .. 5.508 ms)
---                      0.998 R²   (0.996 R² .. 0.999 R²)
--- mean                 5.375 ms   (5.322 ms .. 5.445 ms)
--- std dev              187.9 μs   (137.4 μs .. 278.0 μs)
--- variance introduced by outliers: 17% (moderately inflated)
+-- benchmarking deepseq/list/100000
+-- time                 5.194 ms   (5.129 ms .. 5.263 ms)
+--                      0.999 R²   (0.999 R² .. 1.000 R²)
+-- mean                 5.191 ms   (5.169 ms .. 5.227 ms)
+-- std dev              86.42 μs   (57.85 μs .. 113.8 μs)
 
--- benchmarking dlist/100000
--- time                 5.325 ms   (5.274 ms .. 5.402 ms)
---                      0.998 R²   (0.997 R² .. 1.000 R²)
--- mean                 5.351 ms   (5.312 ms .. 5.400 ms)
--- std dev              142.2 μs   (99.77 μs .. 223.0 μs)
+-- benchmarking deepseq/dlist/100000
+-- time                 5.314 ms   (5.257 ms .. 5.398 ms)
+--                      0.999 R²   (0.997 R² .. 1.000 R²)
+-- mean                 5.298 ms   (5.265 ms .. 5.340 ms)
+-- std dev              114.7 μs   (79.13 μs .. 185.2 μs)
+
+-- benchmarking head/list/100000
+-- time                 4.914 ms   (4.845 ms .. 4.980 ms)
+--                      0.999 R²   (0.999 R² .. 1.000 R²)
+-- mean                 4.943 ms   (4.923 ms .. 4.972 ms)
+-- std dev              71.90 μs   (56.73 μs .. 100.1 μs)
+
+-- benchmarking head/dlist/100000
+-- time                 5.040 ms   (4.950 ms .. 5.153 ms)
+--                      0.999 R²   (0.998 R² .. 1.000 R²)
+-- mean                 4.980 ms   (4.950 ms .. 5.011 ms)
+-- std dev              93.72 μs   (62.24 μs .. 143.6 μs)
 
 {-# LANGUAGE BangPatterns #-}
 {-# OPTIONS_GHC -Wall #-}
@@ -22,30 +33,61 @@ main :: IO ()
 main =
   defaultMain
     [ bgroup
-        "list"
-        [ bench
-            (show iters)
-            (nf
-               (\n0 ->
-                  reverse
-                    (let loop :: Int -> [Int] -> [Int]
-                         loop 0 acc = acc
-                         loop n acc = loop (n - 1) (n : acc)
-                      in loop n0 []))
-               iters)
+        "deepseq"
+        [ bgroup
+            "list"
+            [ bench
+                (show iters)
+                (nf
+                   (\n0 ->
+                      reverse
+                        (let loop :: Int -> [Int] -> [Int]
+                             loop 0 acc = acc
+                             loop n acc = loop (n - 1) (n : acc)
+                          in loop n0 []))
+                   iters)
+            ]
+        , bgroup
+            "dlist"
+            [ bench
+                (show iters)
+                (nf
+                   (\n0 ->
+                      let loop :: Int -> ([Int] -> [Int]) -> [Int]
+                          loop 0 f = f []
+                          loop n f = loop (n - 1) (f . (n :))
+                       in loop n0 id)
+                   iters)
+            ]
         ]
-    , bgroup
-        "dlist"
-        [ bench
-            (show iters)
-            (nf
-               (\n0 ->
-                  let loop :: Int -> ([Int] -> [Int]) -> [Int]
-                      loop 0 f = f []
-                      loop n f = loop (n - 1) (f . (n :))
-                   in loop n0 id)
-               iters)
-        ]
+    ,  bgroup
+         "head"
+         [ bgroup
+             "list"
+             [ bench
+                 (show iters)
+                 (nf
+                    (\n0 ->
+                       head (reverse
+                               (let loop :: Int -> [Int] -> [Int]
+                                    loop 0 acc = acc
+                                    loop n acc = loop (n - 1) (n : acc)
+                                 in loop n0 [])))
+                    iters)
+             ]
+         , bgroup
+             "dlist"
+             [ bench
+                 (show iters)
+                 (nf
+                    (\n0 ->
+                       let loop :: Int -> ([Int] -> [Int]) -> [Int]
+                           loop 0 f = f []
+                           loop n f = loop (n - 1) (f . (n :))
+                        in head (loop n0 id))
+                    iters)
+             ]
+         ]
     ]
   where
     iters :: Int
