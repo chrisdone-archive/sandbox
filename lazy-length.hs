@@ -1,4 +1,4 @@
--- Lazy natural numbers for an efficient length x < length y.
+-- Lazy natural numbers for an efficient length comparisong.
 
 {-
 Equal-sized lists:
