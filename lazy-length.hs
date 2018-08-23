@@ -1,6 +1,7 @@
 -- Lazy natural numbers for an efficient length comparison.
 
 {-
+
 Equal-sized lists:
 
 > genericLength [1..3] == (genericLength [1..3] :: Nat)
