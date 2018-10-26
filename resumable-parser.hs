@@ -86,17 +86,15 @@ instance Functor (Parser i e) where
 class NoMoreInput e where noMoreInput :: e
 instance NoMoreInput e => NoMoreInput [e] where noMoreInput = pure noMoreInput
 
-parseOnly :: NoMoreInput e => Parser i e a -> i -> Either e a
+parseOnly :: Parser i e a -> i -> Either e a
 parseOnly p i =
-  case terminate (runParser p (Just i) Done Failed) of
-    Partial _ -> Left noMoreInput
-    Done _ d -> pure d
-    Failed _ e -> Left e
+  terminate (runParser p (Just i) Done Failed)
   where
     terminate r =
       case r of
         Partial f -> terminate (f Nothing)
-        x -> x
+        Done _ d -> Right d
+        Failed _ e -> Left e
 
 --------------------------------------------------------------------------------
 -- Combinators
