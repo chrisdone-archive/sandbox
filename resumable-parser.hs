@@ -34,18 +34,21 @@ import           Data.Text (Text)
 --------------------------------------------------------------------------------
 -- Parser type
 
-data Result i e r
-  = Done (Maybe i) r
-  | Failed (Maybe i) e
-  | Partial (Maybe i -> Result i e r)
-
-newtype Parser i e a = Parser
-  { runParser :: forall r.
-            Maybe i
-         -> (Maybe i -> a -> Result i e r)
-         -> (Maybe i -> e -> Result i e r)
-         -> Result i e r
+-- | A parser. Takes as input maybe a value. Nothing terminates the
+-- input. Takes two continuations: one for sucess and one for failure.
+newtype Parser input error value = Parser
+  { runParser :: forall result.
+                 Maybe input
+              -> (Maybe input -> value -> Result input error result)
+              -> (Maybe input -> error -> Result input error result)
+              -> Result input error result
   }
+
+-- | Result of a parser. Maybe be partial (expecting more input).
+data Result i e r
+  = Done !(Maybe i) !r
+  | Failed !(Maybe i) !e
+  | Partial (Maybe i -> Result i e r)
 
 instance Monad (Parser i e) where
   return x = Parser (\mi done _failed -> done mi x)
@@ -56,7 +59,7 @@ instance Monad (Parser i e) where
          runParser m mi (\mi' v -> runParser (f v) mi' done failed) failed)
   {-# INLINABLE (>>=) #-}
 
-instance Semigroup e => Semigroup (Parser [i] e a) where
+instance Semigroup e => Semigroup (Parser i e a) where
   left <> right =
     Parser
       (\mi done failed ->
