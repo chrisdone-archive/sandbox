@@ -85,14 +85,6 @@ instance Functor (Parser i e) where
 
 class NoMoreInput e where noMoreInput :: e
 instance NoMoreInput e => NoMoreInput [e] where noMoreInput = pure noMoreInput
-class ExpectedEof e where expectedEof :: e
-instance ExpectedEof e => ExpectedEof [e] where expectedEof = pure expectedEof
-class SomeError e where someError :: Text -> e
-instance SomeError e => SomeError [e] where someError = pure . someError
-
-instance NoMoreInput Text where noMoreInput = "No more input"
-instance ExpectedEof Text where expectedEof = "Expected end of input"
-instance SomeError Text where someError = id
 
 parseOnly :: NoMoreInput e => Parser i e a -> i -> Either e a
 parseOnly p i =
@@ -105,6 +97,18 @@ parseOnly p i =
       case r of
         Partial f -> terminate (f Nothing)
         x -> x
+
+--------------------------------------------------------------------------------
+-- Combinators
+
+class ExpectedEof e where expectedEof :: e
+instance ExpectedEof e => ExpectedEof [e] where expectedEof = pure expectedEof
+class SomeError e where someError :: Text -> e
+instance SomeError e => SomeError [e] where someError = pure . someError
+
+instance NoMoreInput Text where noMoreInput = "No more input"
+instance ExpectedEof Text where expectedEof = "Expected end of input"
+instance SomeError Text where someError = id
 
 nextElement :: NoMoreInput e => Parser [a] e a
 nextElement =
@@ -127,9 +131,6 @@ endOfInput =
                Nothing -> done Nothing ()
         in go mi0)
 {-# INLINABLE endOfInput #-}
-
---------------------------------------------------------------------------------
--- Combinators
 
 digit :: (SomeError e, NoMoreInput e) =>  Parser [Char] e Char
 digit = do
