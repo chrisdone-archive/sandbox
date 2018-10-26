@@ -35,7 +35,7 @@ import           Data.Text (Text)
 -- Parser type
 
 -- | A parser. Takes as input maybe a value. Nothing terminates the
--- input. Takes two continuations: one for sucess and one for failure.
+-- input. Takes two continuations: one for success and one for failure.
 newtype Parser input error value = Parser
   { runParser :: forall result.
                  Maybe input
