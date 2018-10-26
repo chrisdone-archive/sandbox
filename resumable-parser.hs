@@ -1,8 +1,20 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wall #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RankNTypes #-}
+
 {-
+
+A very simple, "core" resumable parser with backtracking-by-default.
+
 > parseOnly (letters <> digits) "abc" :: Either [Text] String
 Right "abc"
+> parseOnly (letters <> digits) "123" :: Either [Text] String
+Right "123"
+> parseOnly (letters <> digits) "!!!" :: Either [Text] String
+Left ["non-letter","non-digit"]
 > parseOnly (letters <> digits) "abc!" :: Either [Text] String
 Right "abc"
 > parseOnly ((letters <> digits) <* endOfInput) "abc!" :: Either [Text] String
@@ -10,12 +22,6 @@ Left ["Expected end of input"]
 > parseOnly ((letters <> digits) <* endOfInput) "abc" :: Either [Text] String
 Right "abc"
 -}
-
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RankNTypes #-}
--- |
 
 module Resumable where
 
