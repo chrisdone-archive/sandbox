@@ -1,7 +1,7 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -9,6 +9,7 @@
 -- | Indexed fields, for DB DSLs, validation DSLs and regular usage.
 
 import Data.Functor.Identity
+import GHC.Generics (Generic)
 
 --------------------------------------------------------------------------------
 -- A class for indexed types
@@ -19,7 +20,11 @@ class Indexed i a where
 --------------------------------------------------------------------------------
 -- Example data type
 
-data Article i = Article { articleId :: Index i Int }
+data Article i =
+  Article
+    { articleId :: Index i Int
+    }
+  deriving (Generic)
 
 --------------------------------------------------------------------------------
 -- Making values from Haskell
