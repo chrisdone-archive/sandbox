@@ -50,3 +50,12 @@ instance Indexed DbExpr a where
 
 dbArticle :: Article DbExpr
 dbArticle = Article { articleId = Null } -- A typical SQL value for a field.
+
+--------------------------------------------------------------------------------
+-- Optional fields
+
+instance Indexed Maybe a where
+  type Index Maybe a = Maybe a
+
+optionalArticle :: Article Maybe
+optionalArticle = Article { articleId = Just 1 }
