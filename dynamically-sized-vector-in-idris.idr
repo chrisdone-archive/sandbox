@@ -34,7 +34,7 @@ main = do
                      Nothing => putStrLn "Couldn't convert to number within bounds."
                      Just idx =>
                        do putStrLn "The value is:"
-                          print (index idx myvector))
+                          print (index idx myvector)) -- This line cannot crash.
 
 -- Things that Idris doesn't have out of the box:
 
