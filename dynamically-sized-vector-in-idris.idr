@@ -1,3 +1,5 @@
+-- This language is Idris.
+--
 -- This program does the following steps:
 --
 -- 1) Accept a line of input, parses it as an integer.
