@@ -1,3 +1,4 @@
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE KindSignatures #-}
@@ -43,12 +44,14 @@ validateArticle = Article { articleId = Validate (> 12) } -- A validation predic
 --------------------------------------------------------------------------------
 -- Querying values as database records
 
-data DbExpr a = Null
+data Expr a where
+   Null :: Expr a
+   Val :: a -> Expr a
 
-instance Indexed DbExpr a where
-  type Index DbExpr a = DbExpr a
+instance Indexed Expr a where
+  type Index Expr a = Expr a
 
-dbArticle :: Article DbExpr
+dbArticle :: Article Expr
 dbArticle = Article { articleId = Null } -- A typical SQL value for a field.
 
 --------------------------------------------------------------------------------
@@ -59,3 +62,14 @@ instance Indexed Maybe a where
 
 optionalArticle :: Article Maybe
 optionalArticle = Article { articleId = Just 1 }
+
+--------------------------------------------------------------------------------
+-- Meta
+
+data Meta a = Meta String
+
+instance Indexed Meta a where
+  type Index Meta a = Meta a
+
+metaArticle :: Article Meta
+metaArticle = Article {articleId = Meta "Id"}
