@@ -1,3 +1,30 @@
+-- Actual program of interest:
+
+main : IO ()
+main = do
+  putStrLn "How big should the vector be?"
+  sizeString <- getLine
+  case parseInt sizeString of
+    Nothing =>
+      putStrLn "Couldn't parse an integer."
+    Just int =>
+      do let size = fromInteger (cast int)
+         let myvector = the (Vect size Integer) -- This is the magic part.
+                            (enumVector size)
+         print size
+         print myvector
+         forever
+           (do putStrLn "Enter an index to look at: "
+               indexString <- getLine
+               case parseInt indexString of
+                 Nothing => putStrLn "Couldn't parse an integer."
+                 Just int =>
+                   case integerToFin (the Integer (cast int)) size of
+                     Nothing => putStrLn "Couldn't convert to number within bounds."
+                     Just idx =>
+                       do putStrLn "The value is:"
+                          print (index idx myvector))
+
 -- Things that Idris doesn't have out of the box:
 
 charToInt : Char -> Maybe Int
@@ -25,30 +52,3 @@ enumVector : (n : Nat) -> Vect n Integer
 enumVector x = reverse (go x) where
   go Z = []
   go (S n) = [toIntegerNat n] ++ go n
-
--- Actual program of interest:
-
-main : IO ()
-main = do
-  putStrLn "How big should the vector be?"
-  sizeString <- getLine
-  case parseInt sizeString of
-    Nothing =>
-      putStrLn "Couldn't parse an integer."
-    Just int =>
-      do let size = fromInteger (cast int)
-         let myvector = the (Vect size Integer) -- This is the magic part.
-                            (enumVector size)
-         print size
-         print myvector
-         forever
-           (do putStrLn "Enter an index to look at: "
-               indexString <- getLine
-               case parseInt indexString of
-                 Nothing => putStrLn "Couldn't parse an integer."
-                 Just int =>
-                   case integerToFin (the Integer (cast int)) size of
-                     Nothing => putStrLn "Couldn't convert to number within bounds."
-                     Just idx =>
-                       do putStrLn "The value is:"
-                          print (index idx myvector))
