@@ -15,6 +15,7 @@ class Indexed i a where
 
 instance Indexed Validate a where
   type Index Validate a = Validate a
+  
 newtype Validate a = Validate (a -> Bool)
 
 instance Indexed Identity a where
@@ -22,6 +23,7 @@ instance Indexed Identity a where
 
 instance Indexed DbExpr a where
   type Index DbExpr a = DbExpr a
+  
 data DbExpr a = Null
 
 identityArticle :: Article Identity
