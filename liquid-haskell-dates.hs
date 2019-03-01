@@ -28,7 +28,8 @@ data Date = Date
   , year  :: Year month day
   } @-}
 
--- In order to construct a valid `Date`, we need to do all the proper runtime tests.
+-- In order to construct a valid `Date`, we need to do all the proper runtime tests, or 
+-- else Liquid Haskell complains at compile time that they're not satisfied.
 
 main :: IO ()
 main = do
