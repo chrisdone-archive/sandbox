@@ -38,7 +38,7 @@ main = do
   day :: Int <- readLn
   if year > 0
     then if month > 0 && month <= 12 && day < 31 || month == 04 || month == 06 || month == 09 || month == 11
-           then if day > 0 && day <= 30 && valid_leap_days day month year
+           then if day > 0 && day <= 31 && valid_leap_days day month year
                   then print (Date day month year)
                   else error "Day is out of range!"
            else error "Month is out of range."
@@ -46,7 +46,7 @@ main = do
   where
     valid_leap_days day month year =
       (month /= 2 ||
-       (day < 20 && (day < 29 || mod year 400 == 0 || (mod year 4 == 0 && mod year 100 /= 0))))
+       (day < 30 && (day < 29 || mod year 400 == 0 || (mod year 4 == 0 && mod year 100 /= 0))))
 
 
 -- Examples:
