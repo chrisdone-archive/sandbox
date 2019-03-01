@@ -10,7 +10,7 @@ module Date where
   {v:Int | v > 0 && v <= 31 } @-}
 
 {-@ type Month day =
-  {v:Int | v > 0 && v <= 12 && (day < 31 || v = 04 || v = 06 || v = 09 || v = 11) } @-}
+  {v:Int | v > 0 && v <= 12 && (day < 31 || not (v = 04 || v = 06 || v = 09 || v = 11)) } @-}
 
 {-@ type Year month day =
   {v:Int | v > 0 && (month /= 2 || (day < 30 && (day < 29 ||  v mod 400 = 0 || (v mod 4 = 0 && v mod 100 /= 0)))) } @-}
@@ -37,7 +37,7 @@ main = do
   month :: Int <- readLn
   day :: Int <- readLn
   if year > 0
-    then if month > 0 && month <= 12 && (day < 31 || month == 04 || month == 06 || month == 09 || month == 11)
+    then if month > 0 && month <= 12 && (day < 31 || not (month == 04 || month == 06 || month == 09 || month == 11))
            then if day > 0 && day <= 31 && valid_leap_days day month year
                   then print (Date day month year)
                   else error "Day is out of range!"
@@ -54,6 +54,12 @@ main = do
 works :: Date
 works = Date 12 03 2017
 
+works2 :: Date
+works2 = Date 31 03 2017
+
+works3 :: Date
+works3 = Date 30 04 2017
+
 works_leap_day :: Date
 works_leap_day = Date 29 02 2016
 
@@ -62,3 +68,4 @@ works_leap_day = Date 29 02 2016
 -- invalid_month = Date 12 15 2017
 -- invalid_leap_day = Date 29 02 2017
 -- invalid_days d m y = Date 30 2 2000
+-- invalid_bound = Date 31 04 2017
