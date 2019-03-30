@@ -9,7 +9,10 @@ import Control.Lens
 import Data.Bifunctor
 import Data.Profunctor
 
-data Component state down up
+data Component state down up where
+  Component
+    :: Tree state down up
+    -> Component state down up
 
 data Tree state down up where
   Slot
@@ -18,9 +21,20 @@ data Tree state down up where
     -> Traversal' parentState childState
     -> Component childState childDown childUp
     -> Tree parentState parentDown parentUp
-  Mappend :: Tree state down up -> Tree state down up -> Tree state down up
-  Ceiling :: (up   -> Behavior down up) -> Tree state down up -> Tree state down up
-  Floor   :: (down -> Behavior down up) -> Tree state down up -> Tree state down up
+  Mappend
+    :: Tree state down up
+    -> Tree state down up
+    -> Tree state down up
+  Ceiling
+    :: (up -> Filter (Behavior down up))
+    -> Tree state down up
+    -> Tree state down up
+  Floor
+    :: (down -> Filter (Behavior down up))
+    -> Tree state down up
+    -> Tree state down up
+
+data Filter a = Passthrough a | Keep a
 
 data Behavior down up
   = SendUp [up]
