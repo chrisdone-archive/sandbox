@@ -4,10 +4,10 @@
 import Options.Applicative.Simple
 import Data.Semigroup ((<>))
 
-data Sample =
-  Sample
-    { sampleEnable :: Bool
-    , sampleUrl :: String
+data Config =
+  Config
+    { configEnable :: Bool
+    , configUrl :: String
     } deriving (Show)
 
 main = do
@@ -16,7 +16,7 @@ main = do
       "1.0"
       "Demo opts program"
       "This program demonstrates commandline options."
-      (Sample
+      (Config
         <$> flag False True (long "enable-the-thing" <> short 'e' <> help "Enable it!")
         <*> strArgument (metavar "URLHERE" <> help "The URL"))
       empty
