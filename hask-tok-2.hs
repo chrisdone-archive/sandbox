@@ -32,4 +32,14 @@ Exercise:
 1. Consume input, keeping the line, column and positions up to date.
 2. Do this in a way that is fast.
 
+Consider reparsec with ByteString
+<https://github.com/chrisdone/streaming-parsers/blob/master/reparsec/src/Data/Reparsec.hs>
+plus a strict StateT monad?
+
+Or consider Zepto, which already exists and is a transformer:
+http://hackage.haskell.org/package/attoparsec-0.13.2.3/docs/Data-Attoparsec-Zepto.html
+
 -}
+
+takeWhile :: (Word8 -> Bool) -> Lex ByteString
+takeWhile p = undefined
