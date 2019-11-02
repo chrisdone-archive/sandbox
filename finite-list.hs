@@ -18,7 +18,6 @@ module Data.List.Finite
 data FiniteList a =
   FiniteList
     { finiteListMaxLength :: !Int
-    , finiteListLength :: !Int
     , finiteList :: ![a]
     }
   deriving (Functor, Foldable, Traversable)

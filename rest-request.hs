@@ -4,17 +4,7 @@
 {-
 
 > execWriterT $ document api
-PathDoc
-  "users"
-  (PathDoc
-     "profile"
-     (MappendDoc
-        [ GetCaptureDoc "id"
-        , GetParamDoc "private_or_public"
-        , PathDoc
-            "wibble"
-            (MappendDoc [GetCaptureDoc "id", GetParamDoc "private_or_public"])
-        ]))
+PathDoc "users" (PathDoc "profile" (MappendDoc [GetCaptureDoc "id",GetParamDoc "private_or_public"]))
 
 -}
 
@@ -34,7 +24,6 @@ data Request m a where
   Fmap :: (z -> a) -> Request m z -> Request m a
   LiftA2 :: (y -> z -> a) -> Request m y -> Request m z -> Request m a
   Pure :: a -> Request m a
-  Alt :: [Request m a] -> Request m a
 
 instance Functor (Request f) where
   fmap = Fmap
@@ -42,10 +31,6 @@ instance Functor (Request f) where
 instance Applicative (Request f) where
   pure = Pure
   liftA2 = LiftA2
-
-instance Alternative (Request f) where
-  empty = Alt []
-  x <|> y = Alt [x,y]
 
 data Doc
   = PathDoc String Doc
@@ -75,7 +60,6 @@ document =
     Pure a -> pure a
     Fmap f x -> fmap f (document x)
     LiftA2 f x y -> liftA2 f (document x) (document y)
-    Alt xs -> fmap head (mapM document xs)
     Path piece rest -> censor (PathDoc piece) (document rest)
     GetHeader key -> do
       tell (GetHeaderDoc key)
@@ -94,7 +78,4 @@ api :: Request m (String, Maybe String)
 api =
   Path
     "users"
-    (Path
-       "profile"
-       ((,) <$> GetCapture "id" <*> GetParam "private_or_public" <|>
-        (Path "wibble" ((,) <$> GetCapture "id" <*> GetParam "private_or_public"))))
+    (Path "profile" ((,) <$> GetCapture "id" <*> GetParam "private_or_public"))
