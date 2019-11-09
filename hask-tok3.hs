@@ -1,17 +1,18 @@
+{-# OPTIONS_GHC -Wall #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
+module Main (main) where
+
 import           Control.Applicative
 import           Control.DeepSeq
 import           Control.Exception
 import           Control.Monad.State.Strict
-import           Control.Monad.Trans
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString as S
 import qualified Data.ByteString.Char8 as S8
-import           Data.Functor
 import           Data.Functor.Identity
 import           Data.Maybe
 import           Data.Word
@@ -28,7 +29,7 @@ data Point =
     }
   deriving (Show, Eq, Generic)
 instance NFData Point
-newtype P m a = P { runP :: ZeptoT (StateT Point m) a }
+newtype P m a = P (ZeptoT (StateT Point m) a)
   deriving (Functor, Applicative, Monad, Alternative, MonadIO)
 
 instance MonadTrans P where
@@ -84,8 +85,7 @@ simple_ = do
 
 simple_count :: P (State Int) ()
 simple_count = do
-  (Token { byteString
-         , start = Point {line, column, indentation}
+  (Token { start = Point {line, column, indentation}
          , end = Point { line = line1
                        , column = column2
                        , indentation = indentation2
@@ -96,7 +96,7 @@ simple_count = do
        (+ (line + column + indentation + line1 + column2 +indentation2
           )))
   unless end simple_count
-{-# INLINE simple_count #-}
+
 
 couple :: Monad m => P m (Token, Bool)
 couple = do
@@ -110,11 +110,6 @@ word = do
   token <- (takeToken (not . isSpace8))
   liftIO (print token)
 
-word_ :: Monad m => P m ()
-word_ = do
-  !w <- fmap force (takeToken (not . isSpace8))
-  pure ()
-
 word' :: Monad m => P m Token
 word' = do
   !w <- takeToken (not . isSpace8)
@@ -124,8 +119,10 @@ spaces :: Monad m => P m ()
 spaces = dropWhile isSpace8
 {-# INLINE spaces #-}
 
+isSpace8 :: (Eq a, Num a) => a -> Bool
 isSpace8 c = c==13 || c==32 || c==10
 
+main :: IO ()
 main = do
   fp:mode:_ <- getArgs
   case mode of
@@ -135,6 +132,7 @@ main = do
       void (S.readFile fp >>= evaluate . runIdentity . run simple_)
     "count" -> do
       void (S.readFile fp >>= print . flip execState 0 . run simple_count)
+    _ -> pure ()
 
 -- With only evaluate
 
